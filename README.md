@@ -16,21 +16,22 @@ FilmFusion is an **AI-driven hybrid movie recommendation system** that combines 
 ## 🏗️ Project Structure
 ```
 
-Movie_Recommender_Sys/
-├── collaborative.py
-├── content_based.py
-├── hybrid_recommender.py
-├── run_preprocessing.py
-├── models.py
-├── utils.py
-├── config.py
-├── main.py
-├── frontend/
-│ ├── templates/
-│ │ └── index.html
-│ └── static/
-│ └── app.js
-└── requirements.txt
+Movie_Recommender_Sys:
+  - collaborative.py
+  - content_based.py
+  - hybrid_recommender.py
+  - run_preprocessing.py
+  - models.py
+  - utils.py
+  - config.py
+  - main.py
+  - frontend:
+      templates:
+        - index.html
+      static:
+        - app.js
+  - requirements.txt
+
 
 ````
 
