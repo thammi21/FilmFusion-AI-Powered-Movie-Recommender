@@ -1,0 +1,36 @@
+# Core Data Science Libraries
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
+scipy==1.11.1
+
+# Machine Learning & Recommendation
+scikit-surprise
+implicit==0.7.2
+
+# API Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Web & HTTP
+requests==2.31.0
+aiofiles==23.2.0
+python-multipart==0.0.6
+
+# Data Visualization (for notebooks)
+matplotlib==3.7.2
+seaborn==0.12.2
+plotly==5.17.0
+
+# Utilities
+tqdm==4.66.1
+joblib==1.3.2
+python-dotenv==1.0.0
+
+# Web Templates
+jinja2==3.1.2
+
+# Optional: GPU acceleration (if you want to use cuDF/cuML)
+# cudf-cu11==23.10.0
+# cuml-cu11==23.10.0

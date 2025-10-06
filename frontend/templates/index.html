@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilmFusion - Your Personal Movie Curator</title>
+    
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23grad)'/><path d='M35 35 L65 50 L35 65 Z' fill='white'/><circle cx='75' cy='25' r='8' fill='%23ffc107'/></svg>">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-purple: #667eea;
+            --primary-indigo: #764ba2;
+            --primary-dark: #0f0f1a;
+            --secondary-dark: #1a1a2e;
+            --accent-dark: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d8;
+            --accent-gold: #ffc107;
+            --accent-teal: #4ecdc4;
+            --accent-pink: #f093fb;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-dark: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.15);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.2);
+            --shadow-heavy: 0 15px 40px rgba(0, 0, 0, 0.3);
+            --border-glow: rgba(102, 126, 234, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--primary-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(45deg, var(--primary-dark), var(--secondary-dark), var(--accent-dark));
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: -2;
+        }
+
+        .hero-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            animation: floatPattern 15s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes floatPattern {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Enhanced Navigation */
+        .navbar {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        /* Watchlist Dropdown */
+        .watchlist-dropdown {
+            min-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .watchlist-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+
+        .watchlist-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .watchlist-item:last-child {
+            border-bottom: none;
+        }
+
+        .watchlist-empty {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .watchlist-count {
+            background: var(--gradient-secondary);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.5rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 65vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            z-index: 2;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+            letter-spacing: -2px;
+        }
+
+        @keyframes titleGlow {
+            from { filter: brightness(1) saturate(1); }
+            to { filter: brightness(1.3) saturate(1.2); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.5s forwards;
+            font-weight: 300;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Glass Containers */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.03) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            z-index: -1;
+        }
+
+        .glass-container:hover::before {
+            transform: rotate(45deg) scale(1.2);
+        }
+
+        .glass-container:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--border-glow);
+        }
+
+        /* Developer Credits Section */
+        .developer-credits {
+            background: rgba(15, 15, 26, 0.95);
+            border-top: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 3rem 0 2rem 0;
+            margin-top: 4rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .developer-info {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+        }
+
+        .developer-info:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--border-glow);
+        }
+
+        .developer-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .developer-title {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .developer-email {
+            color: var(--accent-teal);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .developer-email:hover {
+            color: var(--primary-purple);
+            text-decoration: none;
+        }
+
+        .social-links {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .social-links:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--border-glow);
+        }
+
+        .social-links h6 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .social-link:hover {
+            color: white;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-soft);
+            border-color: var(--primary-purple);
+        }
+
+        .social-link.github:hover {
+            background: linear-gradient(135deg, #333 0%, #24292e 100%);
+        }
+
+        .social-link.linkedin:hover {
+            background: linear-gradient(135deg, #0077b5 0%, #005582 100%);
+        }
+
+        .social-link.portfolio:hover {
+            background: var(--gradient-primary);
+        }
+
+        /* All other existing styles continue here... */
+        /* Enhanced Movie Cards */
+        .movie-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            margin-bottom: 2rem;
+            position: relative;
+            height: 100%;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.25);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .movie-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .movie-card:hover .movie-poster {
+            transform: scale(1.08);
+            filter: brightness(1.1);
+        }
+
+        .movie-info {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .movie-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .movie-year {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .rating-stars {
+            color: var(--accent-gold);
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .rating-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .genre-tag {
+            background: var(--gradient-dark);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .genre-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+            background: var(--gradient-primary);
+        }
+
+        .movie-overview {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recommendation-reason {
+            font-size: 0.8rem;
+            color: var(--accent-teal);
+            font-weight: 600;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .similarity-score {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gradient-secondary);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 3;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Enhanced Forms */
+        .form-control {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 30px;
+            padding: 1rem 1.8rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 25px var(--border-glow);
+            color: var(--text-primary);
+        }
+
+        /* Autocomplete Dropdown Styles */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
+            display: none;
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item-main {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .autocomplete-item-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+
+        .autocomplete-loading {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .autocomplete-no-results {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* Enhanced Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 30px;
+            padding: 1rem 2.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 25px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-purple);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Watchlist Button */
+        .btn-watchlist {
+            background: var(--gradient-secondary);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-watchlist:hover {
+            background: linear-gradient(135deg, #e084f7 0%, #f3436c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+            color: white;
+        }
+
+        /* Loading Animation */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid var(--primary-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Enhancements */
+        .modal-content {
+            background: var(--secondary-dark);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            color: var(--text-primary);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-xl {
+            max-width: 1000px;
+        }
+
+        /* Movie Modal Poster */
+        .movie-modal-poster {
+            border-radius: 15px;
+            box-shadow: var(--shadow-heavy);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .movie-modal-poster:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Stats and Performance */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Rating Stars Enhancement */
+        .rating-stars-interactive i {
+            font-size: 2.5rem;
+            margin: 0 0.3rem;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rating-stars-interactive i:hover {
+            color: var(--accent-gold);
+            transform: scale(1.1);
+        }
+
+        .rating-stars-interactive i.active {
+            color: var(--accent-gold);
+        }
+
+        /* Enhanced Dropdown */
+        .dropdown-menu {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+        }
+
+        .quick-action-btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-heavy);
+            background: var(--gradient-secondary);
+        }
+
+        /* Animation Classes */
+        .animate-in {
+            animation: slideInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-animation > * {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .stagger-animation > *:nth-child(n) {
+            animation-delay: calc(var(--i) * 0.1s);
+        }
+
+        /* Toast Enhancements */
+        .toast {
+            background: var(--secondary-dark);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            color: var(--text-primary);
+            backdrop-filter: blur(20px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+                letter-spacing: -1px;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .glass-container {
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+            
+            .movie-card {
+                margin-bottom: 1.5rem;
+            }
+            
+            .quick-actions {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .developer-credits {
+                padding: 2rem 0 1.5rem 0;
+            }
+
+            .developer-info {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .social-links {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            .social-link {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+                margin: 0 0.3rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-background"></div>
+    
+    <div id="loading">
+        <div class="text-center">
+            <div class="spinner"></div>
+            <p class="mt-3" style="font-weight: 600;">Curating perfect recommendations...</p>
+        </div>
+    </div>
+    
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-film me-2"></i>FilmFusion
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown me-3">
+                    <button class="btn btn-watchlist dropdown-toggle" type="button" id="watchlistDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bookmark me-2"></i>Watchlist
+                        <span class="watchlist-count" id="watchlistCount">0</span>
+                    </button>
+                    <ul class="dropdown-menu watchlist-dropdown" id="watchlistMenu">
+                        <li class="watchlist-empty">
+                            <i class="fas fa-film text-muted mb-2" style="font-size: 2rem;"></i>
+                            <div>No movies added yet</div>
+                            <small class="text-muted">Start exploring to build your watchlist!</small>
+                        </li>
+                    </ul>
+                </div>
+                
+                
+                
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-circle" style="font-size: 2rem; opacity: 0.7; color: var(--primary-purple);"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">FilmFusion</h1>
+            <p class="hero-subtitle">AI-powered cinema curation that understands your unique taste</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="glass-container animate-in">
+            <h3 class="mb-4">
+                <i class="fas fa-search me-3" style="color: var(--accent-teal);"></i>
+                Discover Your Next Cinematic Journey
+            </h3>
+            <div class="row align-items-center">
+                <div class="col-md-9 mb-3 mb-md-0">
+                    <div class="autocomplete-container">
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Search movies, genres, actors... (e.g., 'action movies', 'Tom Hanks', 'sci-fi')">
+                        <div class="autocomplete-dropdown" id="searchSuggestions">
+                            </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" id="searchButton">
+                        <i class="fas fa-magic me-2"></i>Discover
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <small class="text-muted">
+                    
+                    
+                </small>
+            </div>
+        </div>
+
+        <div class="glass-container animate-in">
+            <h3 class="mb-4">
+                <i class="fas fa-brain me-3" style="color: var(--accent-pink);"></i>
+                Personalized AI Recommendations
+            </h3>
+            <div class="row align-items-center mb-4">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="autocomplete-container">
+                        <input type="number" class="form-control" id="userId" 
+                               placeholder="Enter User ID" min="1">
+                        <div class="autocomplete-dropdown" id="userSuggestions">
+                            </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-primary w-100" id="getRecommendations">
+                        <i class="fas fa-sparkles me-2"></i>Get My Recommendations
+                    </button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="stat-number">15K+</div>
+                    <div class="stat-label">Movies Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="stat-number">AI</div>
+                    <div class="stat-label">Powered Engine</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultsSection" style="display: none;">
+        <div class="container">
+            <div class="glass-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 id="resultsTitle">Your Recommendations</h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light" id="sortByRating">
+                            <i class="fas fa-sort-amount-down me-1"></i>Rating
+                        </button>
+                        <button class="btn btn-outline-light" id="sortByYear">
+                            <i class="fas fa-calendar me-1"></i>Year
+                        </button>
+                        <button class="btn btn-outline-light" id="shuffleResults">
+                            <i class="fas fa-random me-1"></i>Shuffle
+                        </button>
+                    </div>
+                </div>
+                <div id="resultsGrid" class="row stagger-animation">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="quick-action-btn" id="scrollToTop" title="Back to Top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="quick-action-btn" id="randomMovie" title="Random Movie">
+            <i class="fas fa-dice"></i>
+        </button>
+    </div>
+
+    <div class="modal fade" id="movieModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="movieModalTitle">Movie Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center">
+                                <img id="movieModalPoster" src="" alt="Movie Poster" 
+                                     class="movie-modal-poster img-fluid" 
+                                     style="max-width: 100%; height: auto; max-height: 500px;">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div id="movieModalDetails">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="getSimilarMovies">
+                        <i class="fas fa-search-plus me-2"></i>Find Similar
+                    </button>
+                    <button type="button" class="btn btn-success" id="rateMovie">
+                        <i class="fas fa-star me-2"></i>Rate Movie
+                    </button>
+                    <button type="button" class="btn btn-watchlist" id="addToWatchlist">
+                        <i class="fas fa-bookmark me-2"></i>Add to Watchlist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ratingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-star me-2" style="color: var(--accent-gold);"></i>Rate This Movie
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h6 id="ratingMovieTitle" class="mb-3" style="color: var(--primary-purple);">Movie Title</h6>
+                    <p class="mb-4 text-muted">Your rating helps us improve recommendations</p>
+                    <div class="rating-stars-interactive mb-4" id="ratingStarsContainer">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                    </div>
+                    <div class="rating-text text-muted mb-3" style="min-height: 20px; font-weight: 600;">
+                        </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" id="submitRating">
+                        <i class="fas fa-check me-2"></i>Submit Rating
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Developer Credits Section -->
+    <footer class="developer-credits">
+        <div class="container">
+            <div class="developer-info animate-in">
+                <div class="developer-name">Mohammed Thameem</div>
+                <div class="developer-title">AIML Engineer & Movie Enthusiast</div>
+                <a href="mailto:mohammedthameem084@gmail.com" class="developer-email">mohammedthameem084@gmail.com</a>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                    Built with using AI-powered recommendation algorithms
+                </p>
+            </div>
+
+            <div class="social-links animate-in">
+                <h6>Connect with the Creator</h6>
+                <div>
+                    <!-- Add your GitHub link in the href attribute below -->
+                    <a href="https://github.com/thammi21" class="social-link github" target="_blank" rel="noopener noreferrer" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <!-- Add your LinkedIn link in the href attribute below -->
+                    <a href="https://linkedin.com/in/mohd-thameem07" class="social-link linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <!-- Add your Portfolio website link in the href attribute below -->
+                    <a href="https://yourportfolio.com" class="social-link portfolio" target="_blank" rel="noopener noreferrer" title="Portfolio">
+                        <i class="fas fa-globe"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced JavaScript for better interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Enhanced rating system
+            const ratingStars = document.querySelectorAll('#ratingStarsContainer i');
+            const ratingTexts = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+            ratingStars.forEach((star, index) => {
+                star.addEventListener('mouseenter', function() {
+                    highlightStars(index + 1);
+                    updateRatingText(index + 1);
+                });
+
+                star.addEventListener('mouseleave', function() {
+                    highlightStars(window.selectedRating || 0);
+                    updateRatingText(window.selectedRating || 0);
+                });
+
+                star.addEventListener('click', function() {
+                    window.selectedRating = index + 1;
+                    highlightStars(window.selectedRating);
+                    updateRatingText(window.selectedRating);
+                });
+            });
+
+            function highlightStars(rating) {
+                ratingStars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas');
+                        star.style.color = 'var(--accent-gold)';
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                        star.style.color = '#555';
+                        star.classList.remove('active');
+                    }
+                });
+            }
+
+            function updateRatingText(rating) {
+                const textEl = document.querySelector('.rating-text');
+                if (textEl && rating > 0) {
+                    textEl.textContent = ratingTexts[rating - 1] || '';
+                } else if (textEl) {
+                    textEl.textContent = '';
+                }
+            }
+
+            // Quick actions
+            document.getElementById('scrollToTop')?.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.getElementById('randomMovie')?.addEventListener('click', function() {
+                if (window.app && typeof window.app.getRandomMovie === 'function') {
+                    window.app.getRandomMovie();
+                } else {
+                    window.app?.showToast?.('Random movie feature coming soon!', true);
+                }
+            });
+
+            // Scroll effects
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 100) {
+                    navbar.style.background = 'rgba(26, 26, 46, 0.98)';
+                    navbar.style.borderBottom = '1px solid rgba(102, 126, 234, 0.3)';
+                } else {
+                    navbar.style.background = 'rgba(26, 26, 46, 0.95)';
+                    navbar.style.borderBottom = '1px solid rgba(102, 126, 234, 0.2)';
+                }
+            });
+
+            // Enhanced stagger animation for results
+            window.animateResults = function() {
+                const cards = document.querySelectorAll('#resultsGrid .col-lg-3');
+                cards.forEach((card, index) => {
+                    card.style.setProperty('--i', index);
+                    card.classList.add('animate-in');
+                });
+            };
+
+            // Global utilities
+            window.showToast = function(message, isSuccess = true) {
+                const toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) return;
+                
+                const toastId = 'toast-' + Date.now();
+                const type = isSuccess ? 'success' : 'error';
+                const icon = isSuccess ? 'check-circle' : 'exclamation-triangle';
+                const bgColor = isSuccess ? 'success' : 'danger';
+                
+                const toastHTML = `
+                    <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <i class="fas fa-${icon} text-${bgColor} me-2"></i>
+                            <strong class="me-auto">FilmFusion</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+                const toast = new bootstrap.Toast(document.getElementById(toastId), {
+                    autohide: true,
+                    delay: 5000
+                });
+                toast.show();
+
+                // Clean up after toast is hidden
+                document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+                    this.remove();
+                });
+            };
+        });
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
