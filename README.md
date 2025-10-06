@@ -26,10 +26,10 @@ Movie_Recommender_Sys/
 ├── config.py
 ├── main.py
 ├── frontend/
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       └── app.js
+│ ├── templates/
+│ │ └── index.html
+│ └── static/
+│ └── app.js
 └── requirements.txt
 
 ````
