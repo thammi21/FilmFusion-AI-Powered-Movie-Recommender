@@ -4,9 +4,9 @@ FilmFusion is an AI-driven hybrid movie recommendation system that intelligently
 ✨ UI Showcase
 The simple and clean frontend allows users to easily search for movies and receive personalized recommendations from the AI engine.
 
-![Main Interface](./screenshots/ui_main_view.jpg)
+![Main Interface](screenshots/ui_main_view.jpg)
 
-![Personalized Recommendations](./screenshots/ui_recommendations.jpg)
+![Personalized Recommendations](screenshots/ui_recommendations.jpg)
 
 Users can search for movies or enter their User ID to get recommendations.
 
