@@ -4,9 +4,9 @@ FilmFusion is an AI-driven hybrid movie recommendation system that intelligently
 ✨ UI Showcase
 The simple and clean frontend allows users to easily search for movies and receive personalized recommendations from the AI engine.
 
-Main Interface
+![Main Interface](./screenshots/ui_main_view.jpg)
 
-Personalized Recommendations
+![Personalized Recommendations](./screenshots/ui_recommendations.jpg)
 
 Users can search for movies or enter their User ID to get recommendations.
 
@@ -30,22 +30,29 @@ High-Performance API: Built with FastAPI, providing a fast, modern, and auto-doc
 End-to-End ML Pipeline: Includes a complete data preprocessing script (run_preprocessing.py) to clean, transform, and build all necessary models from raw data.
 
 🏗️ Project Structure
-.
+```
+FilmFusion-AI-Powered-Movie-Recommender/
 ├── data/
-│   ├── raw/          # Raw dataset files (not in repo)
-│   └── models/       # Trained ML models (.pkl, not in repo)
+│   ├── raw/              # Raw dataset files (not in repo)
+│   └── models/           # Trained ML models (.pkl, not in repo)
 ├── frontend/
-│   ├── static/app.js
-│   └── templates/index.html
-├── screenshots/      # Contains UI images for the README
+│   ├── static/
+│   │   └── app.js
+│   └── templates/
+│       └── index.html
+├── screenshots/          # Contains UI images for the README
 ├── .gitignore
 ├── collaborative.py
 ├── content_based.py
 ├── hybrid_recommender.py
-├── main.py           # FastAPI application entry point
 ├── run_preprocessing.py
+├── models.py
+├── utils.py
+├── config.py
+├── main.py               # FastAPI application entry point
 ├── requirements.txt
 └── README.md
+```
 
 🛠️ Installation & Setup
 Clone the Repository
