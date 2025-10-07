@@ -1,99 +1,104 @@
-```markdown
-# 🎬 FilmFusion: AI-Powered Movie Recommender
+🎬 FilmFusion: An AI-Powered Hybrid Movie Recommender
+FilmFusion is an AI-driven hybrid movie recommendation system that intelligently combines Collaborative Filtering and Content-Based Filtering to deliver personalized and context-aware movie suggestions. The entire engine is served via a high-performance FastAPI backend.
 
-FilmFusion is an **AI-driven hybrid movie recommendation system** that combines **Collaborative Filtering** and **Content-Based Filtering** to deliver personalized movie suggestions based on user preferences and movie metadata.
+✨ UI Showcase
+The simple and clean frontend allows users to easily search for movies and receive personalized recommendations from the AI engine.
 
----
+Main Interface
 
-## 🚀 Features
-- Hybrid Recommendation System: collaborative + content-based filtering  
-- SVD, item-based similarity, TF-IDF on movie metadata  
-- Optimized for performance on mid-range GPUs/CPUs  
-- Simple interactive frontend
+Personalized Recommendations
 
----
+Users can search for movies or enter their User ID to get recommendations.
 
-## 🏗️ Project Structure
-```
-
-Movie_Recommender_Sys:
-  - collaborative.py
-  - content_based.py
-  - hybrid_recommender.py
-  - run_preprocessing.py
-  - models.py
-  - utils.py
-  - config.py
-  - main.py
-  - frontend:
-      templates:
-        - index.html
-      static:
-        - app.js
-  - requirements.txt
+The system generates a deep, scrollable list of curated movie suggestions.
 
 
-````
 
----
 
-## 📦 Installation
 
-```bash
-git clone https://github.com/thammi21/FilmFusion-AI-Powered-Movie-Recommender.git
+🚀 Key Features
+Hybrid Recommendation Engine: Dynamically blends content-based and collaborative filtering based on user rating history.
+
+Advanced Collaborative Filtering: Utilizes Truncated SVD (Singular Value Decomposition) for powerful matrix factorization to uncover latent user preferences.
+
+Robust Content-Based Filtering: Employs TF-IDF vectorization on movie metadata (genres, director, cast, overview) to find content-based similarities.
+
+Effective Cold-Start Handling: Provides meaningful recommendations for new users by suggesting a list of popular and diverse movies to gather initial preferences.
+
+High-Performance API: Built with FastAPI, providing a fast, modern, and auto-documenting RESTful API for all recommendation tasks.
+
+End-to-End ML Pipeline: Includes a complete data preprocessing script (run_preprocessing.py) to clean, transform, and build all necessary models from raw data.
+
+🏗️ Project Structure
+.
+├── data/
+│   ├── raw/          # Raw dataset files (not in repo)
+│   └── models/       # Trained ML models (.pkl, not in repo)
+├── frontend/
+│   ├── static/app.js
+│   └── templates/index.html
+├── screenshots/      # Contains UI images for the README
+├── .gitignore
+├── collaborative.py
+├── content_based.py
+├── hybrid_recommender.py
+├── main.py           # FastAPI application entry point
+├── run_preprocessing.py
+├── requirements.txt
+└── README.md
+
+🛠️ Installation & Setup
+Clone the Repository
+
+git clone [https://github.com/thammi21/FilmFusion-AI-Powered-Movie-Recommender.git](https://github.com/thammi21/FilmFusion-AI-Powered-Movie-Recommender.git)
 cd FilmFusion-AI-Powered-Movie-Recommender
 
+Create and Activate a Virtual Environment
+
+# For Windows
 python -m venv venv
-venv\Scripts\activate   # Windows
+.\venv\Scripts\activate
+
+# For macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+
+Install Dependencies
+
 pip install -r requirements.txt
-````
 
----
+Download the Dataset
+This project uses the MovieLens "Full" Dataset. Download it and place the following required CSV files into the data/raw/ directory:
 
-## 🧩 Dataset
+movies_metadata.csv
 
-This project uses the **MovieLens dataset**: [https://grouplens.org/datasets/movielens/](https://grouplens.org/datasets/movielens/)
+ratings.csv
 
-Place CSV files in:
+credits.csv
 
-```
-data/raw/
-├── movies_metadata.csv
-├── ratings.csv
-├── links.csv
-└── credits.csv
-```
+keywords.csv
 
-Preprocess:
+Run the Preprocessing Pipeline
+This is a one-time step that cleans the data and trains your production ML models.
 
-```bash
 python run_preprocessing.py
-```
 
----
+▶️ Run the Application
+Start the API Server
 
-## ▶️ Run the App
+uvicorn main:app --reload
 
-```bash
-python main.py
-```
+Access the App
+Open your browser and navigate to http://127.0.0.1:8000.
 
-Access the app at: [http://localhost:5000](http://localhost:5000)
+🧠 Tech Stack
+Backend: Python, FastAPI, Uvicorn
 
----
+Machine Learning: Scikit-learn, Pandas, NumPy
 
-## 🧠 Tech Stack
+Environment: virtualenv
 
-* Python, Pandas, NumPy, Scikit-learn, NLTK
-* Flask for frontend
-* Hybrid recommender: SVD, TF-IDF, Cosine Similarity
+🧑‍💻 Author
+Mohammed Thameem
 
----
-
-## 🧑‍💻 Author
-
-**Mohammed Thameem**
-[GitHub Profile](https://github.com/thammi21)
-
-```
-```
+GitHub Profile
